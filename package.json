@@ -8,9 +8,12 @@
     "check": "biome check"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
     "modern-normalize": "^3.0.1",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "react-hook-form": "^7.63.0",
+    "zod": "^4.1.9"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.2",
