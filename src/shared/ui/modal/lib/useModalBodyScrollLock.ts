@@ -1,8 +1,15 @@
 import { useEffect } from 'react';
 
-export const useBodyScrollLock = (isLocked: boolean) => {
+/**
+ * 모달이 열려있을 때 배경 스크롤을 방지하는 훅
+ * - 모달이 열리면 body 스크롤 비활성화
+ * - 모달이 닫히면 body 스크롤 복원
+ */
+export const useModalBodyScrollLock = (isLocked: boolean) => {
   useEffect(() => {
-    if (!isLocked) return;
+    if (!isLocked) {
+      return;
+    }
 
     const originalStyle = window.getComputedStyle(document.body).overflow;
     const originalPaddingRight = document.body.style.paddingRight;
