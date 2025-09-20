@@ -51,6 +51,6 @@ export interface AlertModalProps
 export interface ModalItem {
   id: string;
   type: 'form' | 'confirm' | 'alert' | 'base';
-  props: any;
-  resolve?: (value: any) => void;
+  props: Record<string, unknown>;
+  resolve?: (value: unknown) => void;
 }

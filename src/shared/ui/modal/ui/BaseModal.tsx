@@ -1,8 +1,8 @@
-import { useEffect, type MouseEvent, type ReactNode } from 'react';
+import { useEffect, useRef, type MouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import type { BaseModalProps } from '../type/types';
-import { useFocusManagement, useFocusTrap } from '../lib/useFocusManagement';
-import { useBodyScrollLock } from '../lib/useBodyScrollLock';
+import { useModalFocusTrap } from '../lib/useModalFocusTrap';
+import { useModalBodyScrollLock } from '../lib/useModalBodyScrollLock';
 import styles from '../style/Modal.module.css';
 
 interface ModalProps extends BaseModalProps {
@@ -20,13 +20,32 @@ export function BaseModal({
   closeOnClickOutside = true,
   onClose,
 }: ModalProps) {
-  const modalRef = useFocusManagement(true);
+  const modalRef = useRef<HTMLDivElement>(null);
   const reducedMotion = window.matchMedia(
     '(prefers-reduced-motion: reduce)',
   ).matches;
 
-  useFocusTrap(modalRef, true);
-  useBodyScrollLock(true);
+  useModalFocusTrap(modalRef, true);
+  useModalBodyScrollLock(true);
+
+  // 모달이 열릴 때 제목에 포커스 설정 (포커스 저장 후 실행)
+  useEffect(() => {
+    // 포커스 저장이 완료된 후 제목에 포커스 설정
+    const focusTimer = setTimeout(() => {
+      if (modalRef.current) {
+        const titleElement = modalRef.current.querySelector(
+          '[data-modal-title]',
+        ) as HTMLElement;
+        if (titleElement) {
+          titleElement.focus();
+        } else {
+          modalRef.current.focus();
+        }
+      }
+    }, 10);
+
+    return () => clearTimeout(focusTimer);
+  }, []);
 
   // ESC 키 처리
   useEffect(() => {

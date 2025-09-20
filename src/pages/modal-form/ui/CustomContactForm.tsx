@@ -58,8 +58,6 @@ export function CustomContactForm({
     <div>
       <p style={{ marginBottom: '1.5rem', color: '#666' }}>
         react-hook-form과 Zod를 사용한 커스텀 폼입니다.
-        <br />
-        강력한 타입 안전성과 유연한 검증 로직을 제공합니다.
       </p>
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
