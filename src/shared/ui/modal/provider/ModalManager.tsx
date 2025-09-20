@@ -5,42 +5,33 @@ import React, {
   useCallback,
   useRef,
   type ReactNode,
-  type ComponentType,
 } from 'react';
-import type { BaseModalProps } from '../type/types';
-
-interface ModalRegistry {
-  [key: string]: ComponentType<BaseModalProps>;
-}
+import type {
+  FormModalProps,
+  ConfirmModalProps,
+  AlertModalProps,
+  BaseModalProps,
+  ModalItem,
+} from '../type/types';
+import { FormModal } from '../ui/FormModal';
+import { ConfirmModal } from '../ui/ConfirmModal';
+import { AlertModal } from '../ui/AlertModal';
+import { BaseModal } from '../ui/BaseModal';
 
 interface ModalContextType {
-  openModal: <T = unknown>(
-    modalType: string,
-    props: Omit<BaseModalProps, 'id' | 'children'> & {
-      onSubmit?: (data: T) => void | Promise<void>;
-      children?: React.ReactNode | ((context: any) => React.ReactNode);
-    },
-  ) => Promise<T | null>;
+  openFormModal: <T = unknown>(props: FormModalProps<T>) => Promise<T | null>;
+  openConfirmModal: (props: ConfirmModalProps) => Promise<boolean>;
+  openAlertModal: (props: AlertModalProps) => Promise<void>;
+  openBaseModal: (props: Omit<BaseModalProps, 'id'>) => Promise<void>;
 }
 
 const ModalContext = createContext<ModalContextType | null>(null);
 
 interface ModalManagerProps {
   children: ReactNode;
-  modals: ModalRegistry;
 }
 
-interface ModalItem {
-  id: string;
-  type: string;
-  props: any;
-  resolve?: (value: any) => void;
-}
-
-export function ModalManagerProvider({
-  children,
-  modals: modalRegistry,
-}: ModalManagerProps) {
+export function ModalManagerProvider({ children }: ModalManagerProps) {
   const [modalItems, setModalItems] = useState<ModalItem[]>([]);
   const modalIdCounter = useRef(0);
 
@@ -53,25 +44,20 @@ export function ModalManagerProvider({
     setModalItems((prev) => {
       const modalToClose = prev.find((modal) => modal.id === id);
       if (modalToClose?.resolve) {
-        modalToClose.resolve(result ?? null);
+        modalToClose.resolve(result);
       }
       return prev.filter((modal) => modal.id !== id);
     });
   }, []);
 
-  const openModal = useCallback(
-    <T = unknown>(
-      modalType: string,
-      props: Omit<BaseModalProps, 'id' | 'children'> & {
-        onSubmit?: (data: T) => void | Promise<void>;
-        children?: React.ReactNode | ((context: any) => React.ReactNode);
-      },
-    ) => {
+  // 🎯 FormModal 전용 함수
+  const openFormModal = useCallback(
+    <T = unknown>(props: FormModalProps<T>) => {
       return new Promise<T | null>((resolve) => {
         const id = generateId();
         const modalItem: ModalItem = {
           id,
-          type: modalType,
+          type: 'form',
           props: {
             ...props,
             id,
@@ -95,7 +81,91 @@ export function ModalManagerProvider({
           },
           resolve,
         };
+        setModalItems((prev) => [modalItem, ...prev]);
+      });
+    },
+    [generateId, closeModal],
+  );
 
+  // 🎯 ConfirmModal 전용 함수
+  const openConfirmModal = useCallback(
+    (props: ConfirmModalProps) => {
+      return new Promise<boolean>((resolve) => {
+        const id = generateId();
+        const modalItem: ModalItem = {
+          id,
+          type: 'confirm',
+          props: {
+            ...props,
+            id,
+            onConfirm: async () => {
+              try {
+                await props.onConfirm?.();
+                closeModal(id, true);
+              } catch (error) {
+                console.error('Confirm action failed:', error);
+                closeModal(id, false);
+              }
+            },
+            onCancel: () => {
+              props.onCancel?.();
+              closeModal(id, false);
+            },
+            onClose: () => {
+              props.onClose?.();
+              closeModal(id, false);
+            },
+          },
+          resolve,
+        };
+        setModalItems((prev) => [modalItem, ...prev]);
+      });
+    },
+    [generateId, closeModal],
+  );
+
+  // 🎯 AlertModal 전용 함수
+  const openAlertModal = useCallback(
+    (props: AlertModalProps) => {
+      return new Promise<void>((resolve) => {
+        const id = generateId();
+        const modalItem: ModalItem = {
+          id,
+          type: 'alert',
+          props: {
+            ...props,
+            id,
+            onClose: () => {
+              props.onClose?.();
+              closeModal(id, undefined);
+            },
+          },
+          resolve,
+        };
+        setModalItems((prev) => [modalItem, ...prev]);
+      });
+    },
+    [generateId, closeModal],
+  );
+
+  // 🎯 BaseModal 전용 함수
+  const openBaseModal = useCallback(
+    (props: Omit<BaseModalProps, 'id'>) => {
+      return new Promise<void>((resolve) => {
+        const id = generateId();
+        const modalItem: ModalItem = {
+          id,
+          type: 'base',
+          props: {
+            ...props,
+            id,
+            onClose: () => {
+              props.onClose?.();
+              closeModal(id, undefined);
+            },
+          },
+          resolve,
+        };
         setModalItems((prev) => [modalItem, ...prev]);
       });
     },
@@ -103,18 +173,26 @@ export function ModalManagerProvider({
   );
 
   const contextValue: ModalContextType = {
-    openModal,
+    openFormModal,
+    openConfirmModal,
+    openAlertModal,
+    openBaseModal,
   };
 
   const renderModal = (modal: ModalItem) => {
-    const ModalComponent = modalRegistry[modal.type];
-
-    if (!ModalComponent) {
-      console.error(`Modal type "${modal.type}" is not registered`);
-      return null;
+    switch (modal.type) {
+      case 'form':
+        return <FormModal key={modal.id} {...modal.props} />;
+      case 'confirm':
+        return <ConfirmModal key={modal.id} {...modal.props} />;
+      case 'alert':
+        return <AlertModal key={modal.id} {...modal.props} />;
+      case 'base':
+        return <BaseModal key={modal.id} {...modal.props} />;
+      default:
+        console.error(`Unknown modal type: ${modal.type}`);
+        return null;
     }
-
-    return <ModalComponent key={modal.id} {...modal.props} />;
   };
 
   return (

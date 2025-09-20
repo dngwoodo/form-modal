@@ -21,16 +21,36 @@ export interface FormModalContext<T = unknown> {
   isLoading: boolean;
 }
 
+// 각 모달별 특화된 Props 타입
 export interface FormModalProps<T = unknown>
-  extends Omit<BaseModalProps, 'children'> {
+  extends Omit<BaseModalProps, 'id' | 'children'> {
   children?: ReactNode | ((context: FormModalContext<T>) => ReactNode);
   onSubmit?: (data: T) => void | Promise<void>;
   onCancel?: () => void;
   isLoading?: boolean;
 }
 
-export interface ModalState {
-  modals: BaseModalProps[];
+export interface ConfirmModalProps
+  extends Omit<BaseModalProps, 'id' | 'children'> {
+  children?: ReactNode;
+  message?: string;
+  confirmText?: string;
+  cancelText?: string;
+  onConfirm?: () => void | Promise<void>;
+  onCancel?: () => void;
 }
 
-export type ModalType = 'base' | 'form';
+export interface AlertModalProps
+  extends Omit<BaseModalProps, 'id' | 'children'> {
+  children?: ReactNode;
+  message?: string;
+  buttonText?: string;
+}
+
+// 모달 아이템 인터페이스
+export interface ModalItem {
+  id: string;
+  type: 'form' | 'confirm' | 'alert' | 'base';
+  props: any;
+  resolve?: (value: any) => void;
+}

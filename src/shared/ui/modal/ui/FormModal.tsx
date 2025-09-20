@@ -2,7 +2,9 @@ import { useState } from 'react';
 import type { FormModalProps, FormModalContext } from '../type/types';
 import { BaseModal } from './BaseModal';
 
-export function FormModal<T = unknown>(props: FormModalProps<T>) {
+export function FormModal<T = unknown>(
+  props: FormModalProps<T> & { id: string },
+) {
   const {
     id,
     title = '폼 작성',
@@ -14,7 +16,6 @@ export function FormModal<T = unknown>(props: FormModalProps<T>) {
     children,
     onSubmit,
     onCancel,
-    onClose,
     isLoading = false,
   } = props;
 
@@ -22,7 +23,6 @@ export function FormModal<T = unknown>(props: FormModalProps<T>) {
 
   const handleCancel = () => {
     onCancel?.();
-    onClose?.();
   };
 
   const handleSubmit = async (data: T) => {
