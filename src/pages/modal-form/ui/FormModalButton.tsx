@@ -1,5 +1,5 @@
-import { useModals, type FormModalContext } from '../../../../shared/ui/modal';
-import { CustomContactForm, type ContactFormData } from '../CustomContactForm';
+import { useModals, type FormModalContext } from '../../../shared/ui/modal';
+import { CustomContactForm, type ContactFormData } from './CustomContactForm';
 
 interface FormModalButtonProps {
   onResult?: (result: ContactFormData | null) => void;

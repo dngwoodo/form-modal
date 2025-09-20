@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import type { FormModalContext } from '../../../shared/ui/modal';
 import z from 'zod';
 
-export interface ContactFormData extends Record<string, string> {
+export interface ContactFormData {
   name: string;
   email: string;
   message: string;

@@ -1,9 +1,7 @@
-import {
-  FormModalButton,
-  ConfirmModalButton,
-  AlertModalButton,
-  BaseModalButton,
-} from './buttons';
+import { AlertModalButton } from './AlertModalButton';
+import { BaseModalButton } from './BaseModalButton';
+import { ConfirmModalButton } from './ConfirmModalButton';
+import { FormModalButton } from './FormModalButton';
 
 export function ModalFormPage() {
   return (

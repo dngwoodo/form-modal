@@ -1,4 +1,4 @@
-import { useModals } from '../../../../shared/ui/modal';
+import { useModals } from '../../../shared/ui/modal';
 
 interface ConfirmModalButtonProps {
   onResult?: (confirmed: boolean) => void;
