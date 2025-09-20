@@ -18,7 +18,6 @@ export function BaseModalButton({ onComplete }: BaseModalButtonProps) {
       ),
     });
 
-    console.log('기본 모달이 닫혔습니다');
     onComplete?.();
   };
 
@@ -34,6 +33,7 @@ export function BaseModalButton({ onComplete }: BaseModalButtonProps) {
         borderRadius: '6px',
         fontSize: '16px',
         cursor: 'pointer',
+        height: 'fit-content',
       }}
     >
       📄 BaseModal 열기

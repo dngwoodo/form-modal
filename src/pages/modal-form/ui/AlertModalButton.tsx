@@ -14,7 +14,6 @@ export function AlertModalButton({ onComplete }: AlertModalButtonProps) {
       buttonText: '확인',
     });
 
-    console.log('알림 모달이 닫혔습니다');
     onComplete?.();
   };
 
@@ -30,6 +29,7 @@ export function AlertModalButton({ onComplete }: AlertModalButtonProps) {
         borderRadius: '6px',
         fontSize: '16px',
         cursor: 'pointer',
+        height: 'fit-content',
       }}
     >
       💡 AlertModal 열기

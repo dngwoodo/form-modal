@@ -15,21 +15,10 @@ export function FormModalButton({ onResult }: FormModalButtonProps) {
         <CustomContactForm context={context} />
       ),
       onSubmit: async (data) => {
-        // data는 ContactFormData 타입으로 완벽하게 추론됨
         await new Promise((resolve) => setTimeout(resolve, 1500));
-        console.log('제출된 데이터:', data);
-        alert(
-          `폼이 제출되었습니다!\n이름: ${data.name}\n이메일: ${data.email}\n메시지: ${data.message}`,
-        );
+        console.log('onSubmit data:', data);
       },
     });
-
-    // result는 ContactFormData | null 타입
-    if (result) {
-      console.log('Form result:', result);
-    } else {
-      console.log('Form was cancelled');
-    }
 
     onResult?.(result);
   };
@@ -46,6 +35,7 @@ export function FormModalButton({ onResult }: FormModalButtonProps) {
         borderRadius: '6px',
         fontSize: '16px',
         cursor: 'pointer',
+        height: 'fit-content',
       }}
     >
       📝 FormModal 열기

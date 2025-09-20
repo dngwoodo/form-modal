@@ -21,13 +21,6 @@ export function ConfirmModalButton({ onResult }: ConfirmModalButtonProps) {
       },
     });
 
-    // confirmed는 boolean 타입으로 보장
-    if (confirmed) {
-      alert('항목이 삭제되었습니다!');
-    } else {
-      alert('삭제가 취소되었습니다.');
-    }
-
     onResult?.(confirmed);
   };
 
@@ -43,6 +36,7 @@ export function ConfirmModalButton({ onResult }: ConfirmModalButtonProps) {
         borderRadius: '6px',
         fontSize: '16px',
         cursor: 'pointer',
+        height: 'fit-content',
       }}
     >
       ❓ ConfirmModal 열기
