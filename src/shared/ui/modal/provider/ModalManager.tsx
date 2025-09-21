@@ -1,7 +1,7 @@
 import {
   createContext,
   useContext,
-  useState,
+  useReducer,
   useCallback,
   useRef,
   type ReactNode,
@@ -21,6 +21,7 @@ import {
   useModalFocusManagement,
   globalFocusManager,
 } from '../lib/useModalFocusManagement';
+import { modalItemsReducer } from '../lib/modalItemsReducer';
 
 interface ModalContextType {
   openFormModal: <T = unknown>(props: FormModalProps<T>) => Promise<T | null>;
@@ -36,7 +37,7 @@ interface ModalManagerProps {
 }
 
 export function ModalManagerProvider({ children }: ModalManagerProps) {
-  const [modalItems, setModalItems] = useState<ModalItem[]>([]);
+  const [modalItems, dispatch] = useReducer(modalItemsReducer, []);
   const modalIdCounter = useRef(0);
 
   // 포커스 관리 훅 사용
@@ -47,14 +48,9 @@ export function ModalManagerProvider({ children }: ModalManagerProps) {
     return `modal-${modalIdCounter.current}`;
   }, []);
 
+  // Simplified closeModal function using reducer
   const closeModal = useCallback((id: string, result?: unknown) => {
-    setModalItems((prev) => {
-      const modalToClose = prev.find((modal) => modal.id === id);
-      if (modalToClose?.resolve) {
-        modalToClose.resolve(result);
-      }
-      return prev.filter((modal) => modal.id !== id);
-    });
+    dispatch({ type: 'REMOVE_MODAL', payload: { id, result } });
   }, []);
 
   // FormModal 전용 함수
@@ -93,7 +89,7 @@ export function ModalManagerProvider({ children }: ModalManagerProps) {
           },
           resolve: resolve as (value: unknown) => void,
         };
-        setModalItems((prev) => [modalItem, ...prev]);
+        dispatch({ type: 'ADD_MODAL', payload: modalItem });
       });
     },
     [generateId, closeModal, modalItems.length],
@@ -135,7 +131,7 @@ export function ModalManagerProvider({ children }: ModalManagerProps) {
           },
           resolve: resolve as (value: unknown) => void,
         };
-        setModalItems((prev) => [modalItem, ...prev]);
+        dispatch({ type: 'ADD_MODAL', payload: modalItem });
       });
     },
     [generateId, closeModal, modalItems.length],
@@ -164,7 +160,7 @@ export function ModalManagerProvider({ children }: ModalManagerProps) {
           },
           resolve: resolve as (value: unknown) => void,
         };
-        setModalItems((prev) => [modalItem, ...prev]);
+        dispatch({ type: 'ADD_MODAL', payload: modalItem });
       });
     },
     [generateId, closeModal, modalItems.length],
@@ -193,7 +189,7 @@ export function ModalManagerProvider({ children }: ModalManagerProps) {
           },
           resolve: resolve as (value: unknown) => void,
         };
-        setModalItems((prev) => [modalItem, ...prev]);
+        dispatch({ type: 'ADD_MODAL', payload: modalItem });
       });
     },
     [generateId, closeModal, modalItems.length],
@@ -209,15 +205,39 @@ export function ModalManagerProvider({ children }: ModalManagerProps) {
   const renderModal = (modal: ModalItem) => {
     switch (modal.type) {
       case 'form':
-        return <FormModal key={modal.id} {...(modal.props as any)} />;
+        return (
+          <FormModal
+            key={modal.id}
+            {...(modal.props as unknown as FormModalProps<unknown> & {
+              id: string;
+            })}
+          />
+        );
       case 'confirm':
-        return <ConfirmModal key={modal.id} {...(modal.props as any)} />;
+        return (
+          <ConfirmModal
+            key={modal.id}
+            {...(modal.props as unknown as ConfirmModalProps & { id: string })}
+          />
+        );
       case 'alert':
-        return <AlertModal key={modal.id} {...(modal.props as any)} />;
+        return (
+          <AlertModal
+            key={modal.id}
+            {...(modal.props as unknown as AlertModalProps & { id: string })}
+          />
+        );
       case 'base':
-        return <BaseModal key={modal.id} {...(modal.props as any)} />;
+        return (
+          <BaseModal
+            key={modal.id}
+            {...(modal.props as unknown as BaseModalProps)}
+          />
+        );
       default:
-        console.error(`Unknown modal type: ${modal.type}`);
+        console.error(
+          `Unknown modal type: ${(modal as { type: string }).type}`,
+        );
         return null;
     }
   };
