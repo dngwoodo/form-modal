@@ -17,10 +17,7 @@ import { FormModal } from '../ui/FormModal';
 import { ConfirmModal } from '../ui/ConfirmModal';
 import { AlertModal } from '../ui/AlertModal';
 import { BaseModal } from '../ui/BaseModal';
-import {
-  useModalFocusManagement,
-  globalFocusManager,
-} from '../lib/useModalFocusManagement';
+import { useModalFocusManagement } from '../lib/useModalFocusManagement';
 import { modalItemsReducer } from '../lib/modalItemsReducer';
 
 interface ModalContextType {
@@ -57,11 +54,6 @@ export function ModalManagerProvider({ children }: ModalManagerProps) {
   const openFormModal = useCallback(
     <T = unknown>(props: FormModalProps<T>) => {
       return new Promise<T | null>((resolve) => {
-        // 첫 번째 모달일 때 포커스 저장
-        if (modalItems.length === 0) {
-          globalFocusManager.saveFocus();
-        }
-
         const id = generateId();
         const modalItem: ModalItem = {
           id,
@@ -92,18 +84,13 @@ export function ModalManagerProvider({ children }: ModalManagerProps) {
         dispatch({ type: 'ADD_MODAL', payload: modalItem });
       });
     },
-    [generateId, closeModal, modalItems.length],
+    [generateId, closeModal],
   );
 
   // ConfirmModal 전용 함수
   const openConfirmModal = useCallback(
     (props: ConfirmModalProps) => {
       return new Promise<boolean>((resolve) => {
-        // 첫 번째 모달일 때 포커스 저장
-        if (modalItems.length === 0) {
-          globalFocusManager.saveFocus();
-        }
-
         const id = generateId();
         const modalItem: ModalItem = {
           id,
@@ -134,18 +121,13 @@ export function ModalManagerProvider({ children }: ModalManagerProps) {
         dispatch({ type: 'ADD_MODAL', payload: modalItem });
       });
     },
-    [generateId, closeModal, modalItems.length],
+    [generateId, closeModal],
   );
 
   // AlertModal 전용 함수
   const openAlertModal = useCallback(
     (props: AlertModalProps) => {
       return new Promise<void>((resolve) => {
-        // 첫 번째 모달일 때 포커스 저장
-        if (modalItems.length === 0) {
-          globalFocusManager.saveFocus();
-        }
-
         const id = generateId();
         const modalItem: ModalItem = {
           id,
@@ -163,18 +145,13 @@ export function ModalManagerProvider({ children }: ModalManagerProps) {
         dispatch({ type: 'ADD_MODAL', payload: modalItem });
       });
     },
-    [generateId, closeModal, modalItems.length],
+    [generateId, closeModal],
   );
 
   // BaseModal 전용 함수
   const openBaseModal = useCallback(
     (props: Omit<BaseModalProps, 'id'>) => {
       return new Promise<void>((resolve) => {
-        // 첫 번째 모달일 때 포커스 저장
-        if (modalItems.length === 0) {
-          globalFocusManager.saveFocus();
-        }
-
         const id = generateId();
         const modalItem: ModalItem = {
           id,
@@ -192,7 +169,7 @@ export function ModalManagerProvider({ children }: ModalManagerProps) {
         dispatch({ type: 'ADD_MODAL', payload: modalItem });
       });
     },
-    [generateId, closeModal, modalItems.length],
+    [generateId, closeModal],
   );
 
   const contextValue: ModalContextType = {
